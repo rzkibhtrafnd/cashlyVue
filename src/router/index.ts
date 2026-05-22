@@ -7,11 +7,17 @@ const router = createRouter({
   },
   routes: [
     {
+      path: '/',
+      redirect: '/signin',
+    },
+
+    {
       path: '/blank',
       name: 'Blank',
       component: () => import('../views/Pages/BlankPage.vue'),
       meta: {
         title: 'Blank',
+        requiresAuth: true,
       },
     },
 
@@ -30,6 +36,7 @@ const router = createRouter({
       component: () => import('../views/Auth/Signin.vue'),
       meta: {
         title: 'Signin',
+        guestOnly: true,
       },
     },
     {
@@ -38,6 +45,7 @@ const router = createRouter({
       component: () => import('../views/Auth/Signup.vue'),
       meta: {
         title: 'Signup',
+        guestOnly: true,
       },
     },
     {
@@ -46,7 +54,8 @@ const router = createRouter({
       component: () => import('../views/AdminDashboard.vue'),
       meta: {
         title: 'Admin Dashboard',
-        role : 'admin',
+        role: 'admin',
+        requiresAuth: true,
       },
     },
     {
@@ -55,36 +64,95 @@ const router = createRouter({
       component: () => import('../views/KasirDashboard.vue'),
       meta: {
         title: 'Kasir Dashboard',
-        role : 'kasir',
+        role: 'kasir',
+        requiresAuth: true,
       },
     },
     {
       path: '/admin/settings',
       name: ' Pengaturan',
-      component: () => import('../views/Pages/Admin/Settings.vue'),
+      component: () => import('../views/Pages/Admin/Settings/Index.vue'),
       meta: {
         title: 'Admin Settings',
-        role : 'admin',
+        role: 'admin',
+        requiresAuth: true,
       },
+    },
+    {
+      path: '/admin/users',
+      name: 'User Management',
+      component: () => import('../views/Pages/Admin/Users/Index.vue'),
+      meta: {
+        title: 'User Management',
+        role: 'admin',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/admin/categories',
+      name: 'Categories',
+      component: () => import('../views/Pages/Admin/Categories/Index.vue'),
+      meta: {
+        title: 'Kategori Produk',
+        role: 'admin',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/products',
+      name: 'Products',
+      component: () => import('../views/Pages/Admin/Products/Index.vue'),
+      meta: {
+        title: 'Manajemen Produk',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/transactions',
+      name: 'Transactions',
+      component: () => import('../views/Pages/Admin/Transactions/Index.vue'),
+      meta: { 
+        title: 'Kasir / Transaksi', 
+        requiresAuth: true 
+      },
+    },
+    {
+      path: '/recent-transactions',
+      name: 'Riwayat Transactions',
+      component: () => import('../views/Pages/Admin/RecentTransactions.vue'),
+      meta: { 
+        title: 'Riwayat Transaksi', 
+        requiresAuth: true 
+      },
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      redirect: '/error-404'
     }
   ],
 })
 
-const publicPages = ['/signin', '/signup', '/error-404']
-
 router.beforeEach((to, from, next) => {
   document.title = `Vue.js ${to.meta.title || 'TailAdmin'} | TailAdmin - Vue.js Tailwind CSS Dashboard Template`
+  
   const token = localStorage.getItem('token')
-  const authRequired = !publicPages.includes(to.path)
+  const role = localStorage.getItem('role')
 
-  if (authRequired && !token) {
+  if (to.matched.some(record => record.meta.requiresAuth) && !token) {
+    // Tendang paksa dan kunci di halaman signin
     return next({ path: '/signin' })
   }
 
-  if ((to.path === '/signin' || to.path === '/signup') && token) {
-    const role = localStorage.getItem('role')
-    const redirectPath = role === 'admin' ? '/admin/dashboard' : role === 'kasir' ? '/kasir/dashboard' : '/'
-    return next({ path: redirectPath })
+  if (to.matched.some(record => record.meta.guestOnly) && token) {
+    if (role === 'admin') return next({ path: '/admin/dashboard' })
+    if (role === 'kasir') return next({ path: '/kasir/dashboard' })
+    return next({ path: '/signin' })
+  }
+
+  if (to.meta.role && to.meta.role !== role) {
+    if (role === 'kasir') return next({ path: '/kasir/dashboard' })
+    if (role === 'admin') return next({ path: '/admin/dashboard' })
+    return next({ path: '/signin' })
   }
 
   next()

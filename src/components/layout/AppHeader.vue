@@ -76,7 +76,6 @@
         <div class="flex items-center gap-2 2xsm:gap-3">
           <ThemeToggler />
         </div>
-        <UserMenu />
       </div>
     </div>
   </header>

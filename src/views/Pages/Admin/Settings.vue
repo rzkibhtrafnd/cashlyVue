@@ -1,6 +1,6 @@
     <template>
     <admin-layout>
-        <div class="min-h-screen bg-gray-50 dark:bg-gray-950">
+        <div class=" bg-gray-50 dark:bg-gray-950">
         <div class="mx-auto max-w-screen-2xl space-y-6 p-4 md:p-6 2xl:p-10">
             <!-- Header -->
             <div class="rounded-2xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
