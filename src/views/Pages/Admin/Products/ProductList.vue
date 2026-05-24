@@ -111,7 +111,7 @@
     defineEmits(['create', 'edit', 'delete']);
 
     const currentPage = ref(1);
-    const itemsPerPage = 7;
+    const itemsPerPage = 5;
 
     const totalPages = computed(() => Math.ceil(props.products.length / itemsPerPage));
     const startIndex = computed(() => (currentPage.value - 1) * itemsPerPage);

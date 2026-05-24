@@ -35,9 +35,14 @@
     <script setup lang="ts">
     import { reactive, onMounted } from 'vue'
 
+    interface Category {
+      id: number | null;
+      name: string;
+    }
+
     const props = defineProps<{
-    initialData: any;
-    isSaving: boolean;
+      initialData: Category | null;
+      isSaving: boolean;
     }>();
 
     defineEmits(['submit', 'cancel']);

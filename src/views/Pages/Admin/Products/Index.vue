@@ -3,6 +3,16 @@
         <div class="bg-gray-50 dark:bg-gray-950">
         <div class="mx-auto max-w-screen-2xl space-y-6 p-4 md:p-6 2xl:p-10">
             
+            <!-- Page Header -->
+            <div class="rounded-2xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
+            <div class="flex flex-col gap-4 px-6 py-6 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                <h3 class="text-2xl font-bold text-gray-800 dark:text-white/90">Kelola Produk</h3>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Kelola daftar produk, harga, kategori, dan gambar produk toko Anda.</p>
+                </div>
+            </div>
+            </div>
+
             <!-- Alert Notification -->
             <div v-if="alert.msg"
             class="rounded-2xl border px-4 py-4 text-sm font-medium transition-all"
@@ -11,7 +21,7 @@
             {{ alert.msg }}
             </div>
 
-            <!-- Render View Dinamis -->
+            <!-- Content Area -->
             <ProductList 
             v-if="currentView === 'list'" 
             :products="products" 
@@ -41,27 +51,44 @@
 
     <script setup lang="ts">
     import { ref, reactive, onMounted } from 'vue'
+    import type { AxiosError } from 'axios'
     import api from '@/api/axios'
     import AdminLayout from '@/components/layout/AdminLayout.vue'
 
-    // Import Komponen Anak yang Sudah Dipecah
     import ProductList from './ProductList.vue'
     import ProductForm from './ProductForm.vue'
+
+    interface Category {
+    id: number;
+    name: string;
+    }
+
+    interface Product {
+    id?: number;
+    name: string;
+    price: number;
+    categoryId: number;
+    image?: string;
+    }
+
+    interface ProductFormSubmit {
+    form: Product;
+    file: File | null;
+    }
 
     const backendBaseUrl = 'http://localhost:5000'
     const userRole = localStorage.getItem('role') || 'kasir'
 
-    // State Utama
-    const products = ref<any[]>([])
-    const categories = ref<any[]>([])
+    const products = ref<Product[]>([])
+    const categories = ref<Category[]>([])
     const isLoading = ref(true)
     const isSaving = ref(false)
 
     const currentView = ref<'list' | 'form'>('list')
-    const formData = ref<any>(null)
+    const formData = ref<Product | null>(null)
 
     const alert = reactive({ msg: '', type: 'success' as 'success' | 'error' })
-    let alertTimer: any = null
+    let alertTimer: ReturnType<typeof setTimeout> | null = null
 
     // Helper Utilities
     const getAuthHeader = () => ({ headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
@@ -81,9 +108,9 @@
     try {
         const response = await api.get('/products', getAuthHeader())
         products.value = response.data.data || response.data
-    } catch (error) {
+    } catch {
         showAlert('Gagal mengambil data produk', 'error')
-    } {
+    } finally {
         isLoading.value = false
     }
     }
@@ -92,18 +119,17 @@
     try {
         const response = await api.get('/categories', getAuthHeader())
         categories.value = response.data.data || response.data
-    } catch (error) {
-        console.error('Gagal memuat kategori', error)
+    } catch {
+        console.error('Gagal memuat kategori')
     }
     }
 
-    // Handler Submit Form
-    const submitProduct = async ({ form, file }: { form: any; file: File | null }) => {
+    const submitProduct = async ({ form, file }: ProductFormSubmit) => {
     isSaving.value = true
     try {
         const dataToSend = new FormData()
         dataToSend.append('name', form.name)
-        dataToSend.append('price', form.price)
+        dataToSend.append('price', form.price.toString())
         dataToSend.append('categoryId', form.categoryId.toString())
         
         if (file) {
@@ -127,8 +153,10 @@
 
         goBack()
         await fetchProducts() 
-    } catch (error: any) {
-        showAlert(error.response?.data?.message || 'Terjadi kesalahan saat menyimpan.', 'error')
+    } catch (error) {
+        const axiosError = error as AxiosError<{ message?: string }>
+        const message = axiosError.response?.data?.message || 'Terjadi kesalahan saat menyimpan.'
+        showAlert(message, 'error')
     } finally {
         isSaving.value = false
     }
@@ -143,7 +171,9 @@
         showAlert('Produk berhasil dihapus', 'success')
         await fetchProducts()
     } catch (error) {
-        showAlert('Gagal menghapus produk', 'error')
+        const axiosError = error as AxiosError<{ message?: string }>
+        const message = axiosError.response?.data?.message || 'Gagal menghapus produk'
+        showAlert(message, 'error')
     }
     }
 
@@ -154,7 +184,7 @@
     currentView.value = 'form'
     }
 
-    const openEditForm = (product: any) => {
+    const openEditForm = (product: Product) => {
     if (userRole !== 'admin') return
     formData.value = { ...product }
     currentView.value = 'form'

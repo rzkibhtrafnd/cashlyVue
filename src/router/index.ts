@@ -10,7 +10,6 @@ const router = createRouter({
       path: '/',
       redirect: '/signin',
     },
-
     {
       path: '/blank',
       name: 'Blank',
@@ -20,7 +19,6 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
-
     {
       path: '/error-404',
       name: '404 Error',
@@ -29,7 +27,6 @@ const router = createRouter({
         title: '404 Error',
       },
     },
-
     {
       path: '/signin',
       name: 'Signin',
@@ -119,7 +116,7 @@ const router = createRouter({
     {
       path: '/recent-transactions',
       name: 'Riwayat Transactions',
-      component: () => import('../views/Pages/Admin/RecentTransactions.vue'),
+      component: () => import('../views/Pages/Admin/RecentTransactions/Index.vue'),
       meta: { 
         title: 'Riwayat Transaksi', 
         requiresAuth: true 
@@ -132,14 +129,23 @@ const router = createRouter({
   ],
 })
 
+let lastNavigationTime = 0
+const THROTTLE_DELAY = 300
+
 router.beforeEach((to, from, next) => {
-  document.title = `Vue.js ${to.meta.title || 'TailAdmin'} | TailAdmin - Vue.js Tailwind CSS Dashboard Template`
+  const now = Date.now()
+  if (now - lastNavigationTime < THROTTLE_DELAY) {
+    console.warn('Navigasi diblokir sementara karena terlalu cepat (Throttle)')
+    return next(false)
+  }
+  lastNavigationTime = now
+
+  document.title = `${to.meta.title} Cashly`
   
   const token = localStorage.getItem('token')
   const role = localStorage.getItem('role')
 
   if (to.matched.some(record => record.meta.requiresAuth) && !token) {
-    // Tendang paksa dan kunci di halaman signin
     return next({ path: '/signin' })
   }
 
@@ -155,7 +161,7 @@ router.beforeEach((to, from, next) => {
     return next({ path: '/signin' })
   }
 
-  next()
+  return next()
 })
 
 export default router

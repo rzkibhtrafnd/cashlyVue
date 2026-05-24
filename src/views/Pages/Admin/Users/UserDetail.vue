@@ -50,7 +50,16 @@
     </template>
 
     <script setup lang="ts">
-    defineProps<{ user: any }>();
+    interface User {
+      id: number;
+      name: string;
+      email: string;
+      role: 'admin' | 'kasir';
+      createdAt?: string;
+      updatedAt?: string;
+    }
+
+    defineProps<{ user: User }>();
     defineEmits(['back', 'edit']);
 
     const formatDate = (dateString?: string) => {

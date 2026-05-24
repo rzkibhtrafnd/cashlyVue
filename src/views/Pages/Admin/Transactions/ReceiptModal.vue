@@ -32,7 +32,7 @@
         <div class="mb-4">
             <div class="flex justify-between font-bold text-sm">
             <p>TOTAL</p>
-            <p>{{ formatNumber(transaction?.total) }}</p>
+            <p>{{ formatNumber(transaction?.total ?? 0) }}</p>
             </div>
             <div class="flex justify-between">
             <p>METODE</p>
@@ -45,7 +45,7 @@
             </div>
             <div class="flex justify-between">
                 <p>KEMBALI</p>
-                <p>{{ formatNumber(customerMoneyPaid - transaction?.total) }}</p>
+                <p>{{ formatNumber(customerMoneyPaid - (transaction?.total ?? 0)) }}</p>
             </div>
             </template>
         </div>
@@ -71,12 +71,44 @@
     </template>
 
     <script setup lang="ts">
+    interface Product {
+      id: number
+      name: string
+      price: number
+    }
+
+    interface TransactionItem {
+      id: number
+      qty: number
+      price: number
+      subtotal: number
+      product?: Product
+    }
+
+    interface Transaction {
+      id: number
+      createdAt?: string
+      user?: {
+        name: string
+      }
+      items: TransactionItem[]
+      total: number
+      paymentMethod: string
+    }
+
+    interface Settings {
+      companyName?: string
+      address?: string
+      phone?: string
+      [key: string]: unknown
+    }
+
     defineProps<{
-    transaction: any
-    customerMoneyPaid: number
-    settings: any
-    formatNumber: (num: number) => string
-    formatDate: (str?: string) => string
+      transaction: Transaction | null
+      customerMoneyPaid: number
+      settings: Settings | null
+      formatNumber: (num: number) => string
+      formatDate: (str?: string) => string
     }>();
 
     defineEmits(['finish']);

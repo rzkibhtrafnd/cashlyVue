@@ -3,6 +3,17 @@
         <div class="bg-gray-50 dark:bg-gray-950">
         <div class="mx-auto max-w-screen-2xl space-y-6 p-4 md:p-6 2xl:p-10">
             
+            <!-- Page Header -->
+            <div class="rounded-2xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
+            <div class="flex flex-col gap-4 px-6 py-6 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                <h3 class="text-2xl font-bold text-gray-800 dark:text-white/90">Kelola Pengguna</h3>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Kelola daftar pengguna, atur peran, dan kelola akses sistem kasir dan admin.</p>
+                </div>
+            </div>
+            </div>
+
+            <!-- Alert Notification -->
             <div v-if="alert.msg"
             class="rounded-2xl border px-4 py-4 text-sm font-medium transition-all"
             :class="alert.type === 'success' ? 'border-green-200 bg-green-50 text-green-700 dark:border-green-500/20 dark:bg-green-500/10 dark:text-green-400' : 'border-red-200 bg-red-50 text-red-700 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-400'"
@@ -10,6 +21,7 @@
             {{ alert.msg }}
             </div>
 
+            <!-- Content Area -->
             <UserList 
             v-if="currentView === 'list'" 
             :users="users" 
@@ -42,6 +54,7 @@
 
     <script setup lang="ts">
     import { ref, reactive, onMounted } from 'vue'
+    import type { AxiosError } from 'axios'
     import api from '@/api/axios'
     import AdminLayout from '@/components/layout/AdminLayout.vue'
 
@@ -49,16 +62,24 @@
     import UserDetail from './UserDetail.vue'
     import UserForm from './UserForm.vue'
 
-    const users = ref<any[]>([])
+    interface User {
+    id?: number;
+    name: string;
+    email: string;
+    role: 'admin' | 'kasir';
+    password?: string;
+    }
+
+    const users = ref<User[]>([])
     const isLoading = ref(true)
     const isSaving = ref(false)
 
     const currentView = ref<'list' | 'detail' | 'form'>('list')
-    const selectedUser = ref<any | null>(null)
-    const formData = ref<any>(null)
+    const selectedUser = ref<User | null>(null)
+    const formData = ref<User | null>(null)
 
     const alert = reactive({ msg: '', type: 'success' as 'success' | 'error' })
-    let alertTimer: any = null
+    let alertTimer: ReturnType<typeof setTimeout> | null = null
 
     const getAuthHeader = () => ({ headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
 
@@ -74,17 +95,21 @@
     try {
         const response = await api.get('/users', getAuthHeader())
         users.value = response.data.data || response.data
-    } catch (error) {
+    } catch {
         showAlert('Gagal mengambil data pengguna dari server', 'error')
     } finally {
         isLoading.value = false
     }
     }
 
-    const submitUser = async (payloadForm: any) => {
+    const submitUser = async (payloadForm: User) => {
     isSaving.value = true
     try {
-        const payload: any = { name: payloadForm.name, email: payloadForm.email, role: payloadForm.role }
+        const payload: Record<string, string | number | boolean | undefined> = {
+        name: payloadForm.name,
+        email: payloadForm.email,
+        role: payloadForm.role
+        }
         if (payloadForm.password) payload.password = payloadForm.password
 
         if (payloadForm.id) {
@@ -97,8 +122,10 @@
 
         goBack()
         await fetchUsers() 
-    } catch (error: any) {
-        showAlert(error.response?.data?.message || 'Terjadi kesalahan saat menyimpan.', 'error')
+    } catch (error) {
+        const axiosError = error as AxiosError<{ message?: string }>
+        const message = axiosError.response?.data?.message || 'Terjadi kesalahan saat menyimpan.'
+        showAlert(message, 'error')
     } finally {
         isSaving.value = false
     }
@@ -111,11 +138,13 @@
         showAlert('Pengguna berhasil dihapus', 'success')
         await fetchUsers()
     } catch (error) {
-        showAlert('Gagal menghapus pengguna', 'error')
+        const axiosError = error as AxiosError<{ message?: string }>
+        const message = axiosError.response?.data?.message || 'Gagal menghapus pengguna'
+        showAlert(message, 'error')
     }
     }
 
-    const openDetail = (user: any) => {
+    const openDetail = (user: User) => {
     selectedUser.value = user
     currentView.value = 'detail'
     }
@@ -125,7 +154,7 @@
     currentView.value = 'form'
     }
 
-    const openEditForm = (user: any) => {
+    const openEditForm = (user: User) => {
     formData.value = { ...user }
     currentView.value = 'form'
     }

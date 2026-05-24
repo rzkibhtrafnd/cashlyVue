@@ -26,10 +26,10 @@
             </tr>
             </thead>
             <tbody class="divide-y divide-gray-100 dark:divide-white/[0.05]">
-            <tr v-if="categories.length === 0">
+            <tr v-if="paginatedCategories.length === 0">
                 <td colspan="3" class="px-6 py-8 text-center text-gray-500">Belum ada data kategori.</td>
             </tr>
-            <tr v-for="category in categories" :key="category.id" class="hover:bg-gray-50 dark:hover:bg-white/[0.02] transition">
+            <tr v-for="category in paginatedCategories" :key="category.id" class="hover:bg-gray-50 dark:hover:bg-white/[0.02] transition">
                 <td class="px-6 py-4">
                 <span class="block font-medium text-gray-700 text-sm dark:text-gray-400">#{{ String(category.id).padStart(4, '0') }}</span>
                 </td>
@@ -77,9 +77,15 @@
 
     <script setup lang="ts">
     import { ref, computed, watch } from 'vue';
+
+    interface Category {
+      id: number;
+      name: string;
+    }
+
     const props = defineProps<{
-    categories: any[];
-    isLoading: boolean;
+      categories: Category[];
+      isLoading: boolean;
     }>();
 
     defineEmits(['create', 'edit', 'delete']);

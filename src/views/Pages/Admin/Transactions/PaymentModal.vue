@@ -89,13 +89,19 @@
     <script setup lang="ts">
     import { ref, computed, watch } from 'vue'
 
+    interface Settings {
+      imgQris?: string
+      companyName?: string
+      [key: string]: unknown
+    }
+
     const props = defineProps<{
-    totalPrice: number
-    dynamicQrisImage: string
-    settings: any
-    isProcessing: boolean
-    error: string
-    formatRupiah: (num: number) => string
+      totalPrice: number
+      dynamicQrisImage: string
+      settings: Settings | null
+      isProcessing: boolean
+      error: string
+      formatRupiah: (num: number) => string
     }>();
 
     const emit = defineEmits(['close', 'submit-payment', 'done-qris']);

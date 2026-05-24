@@ -1,10 +1,9 @@
-    <template>
+<template>
     <admin-layout>
         <div 
         class="flex flex-col bg-gray-50 dark:bg-gray-950 overflow-hidden w-full mb-6 md:rounded-b-2xl border-b border-gray-200 dark:border-gray-800 shadow-sm"
         style="height: calc(100vh - 110px);"
         >
-        
         <div class="flex md:hidden bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shrink-0">
             <button 
             @click="mobileView = 'catalog'"
@@ -24,7 +23,6 @@
         </div>
 
         <div class="flex flex-1 flex-col md:flex-row min-h-0 overflow-hidden">
-            
             <ProductCatalog
             :class="mobileView === 'catalog' ? 'flex' : 'hidden md:flex'"
             :products="products"
@@ -43,7 +41,6 @@
             @decrease="decreaseQty"
             @checkout="openPaymentModal"
             />
-
         </div>
 
         <PaymentModal
@@ -68,13 +65,13 @@
             :format-date="formatDate"
             @finish="closeReceiptAndReset"
         />
-
         </div>
     </admin-layout>
     </template>
 
     <script setup lang="ts">
     import { ref, computed, onMounted } from 'vue'
+    import type { AxiosError } from 'axios'
     import api from '@/api/axios'
     import AdminLayout from '@/components/layout/AdminLayout.vue'
 
@@ -85,13 +82,63 @@
 
     const backendBaseUrl = 'http://localhost:5000'
 
-    interface Product { id: number; name: string; price: number; image: string; categoryId?: number; category?: any }
-    interface CartItem extends Product { qty: number }
+    // --- Interfaces Berkualitas (Tanpa Any) ---
+    interface Category {
+    id: number
+    name: string
+    }
 
+    interface Product {
+    id: number
+    name: string
+    price: number
+    image: string
+    categoryId?: number
+    category?: Category
+    }
+
+    interface CartItem extends Product {
+    qty: number
+    }
+
+    interface Settings {
+    companyName: string
+    email: string
+    phone: string
+    address: string
+    wifi: string
+    wifiPassword: string
+    imgLogo?: string
+    imgQris?: string
+    }
+
+    interface TransactionItem {
+    id: number
+    price: number
+    qty: number
+    subtotal: number
+    product?: Product
+    }
+
+    interface Transaction {
+    id: number
+    paymentMethod: 'cash' | 'qris'
+    total: number
+    totalPrice?: number // Sesuai kebutuhan prop PaymentModal Anda
+    createdAt?: string
+    qrisImage?: string
+    qrisError?: string
+    items?: TransactionItem[]
+    user?: {
+        name: string
+    }
+    }
+
+    // --- State Definitions ---
     const products = ref<Product[]>([])
-    const categories = ref<any[]>([])
+    const categories = ref<Category[]>([])
     const cart = ref<CartItem[]>([])
-    const settings = ref<any>(null)
+    const settings = ref<Settings | null>(null)
     const isLoadingProducts = ref(true)
 
     const mobileView = ref<'catalog' | 'cart'>('catalog')
@@ -102,12 +149,14 @@
     const paymentError = ref('')
     const dynamicQrisImage = ref('')
 
-    const currentTransaction = ref<any>(null)
+    const currentTransaction = ref<Transaction | null>(null)
     const customerMoneyPaid = ref(0)
 
-    const totalPrice = computed(() => cart.value.reduce((sum, item) => sum + (item.price * item.qty), 0));
-    const totalItems = computed(() => cart.value.reduce((sum, item) => sum + item.qty, 0));
+    // --- Computed Properties ---
+    const totalPrice = computed(() => cart.value.reduce((sum, item) => sum + (item.price * item.qty), 0))
+    const totalItems = computed(() => cart.value.reduce((sum, item) => sum + item.qty, 0))
 
+    // --- Helper Functions ---
     const formatRupiah = (num: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num)
     const formatNumber = (num: number) => new Intl.NumberFormat('id-ID').format(num)
     const getImageUrl = (filename: string) => `${backendBaseUrl}/uploads/${filename}`
@@ -116,26 +165,38 @@
     return new Date(dateStr).toLocaleString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
     }
 
+    // --- Cart Actions ---
     const addToCart = (product: Product) => {
     const existing = cart.value.find(i => i.id === product.id)
-    if (existing) existing.qty++
-    else cart.value.push({ ...product, qty: 1 })
-    };
+    if (existing) {
+        existing.qty++
+    } else {
+        cart.value.push({ ...product, qty: 1 })
+    }
+    }
 
-    const increaseQty = (item: CartItem) => item.qty++;
+    const increaseQty = (item: CartItem) => {
+    item.qty++
+    }
+
     const decreaseQty = (item: CartItem) => {
     item.qty--
-    if (item.qty === 0) cart.value = cart.value.filter(i => i.id !== item.id)
-    };
+    if (item.qty === 0) {
+        cart.value = cart.value.filter(i => i.id !== item.id)
+    }
+    }
 
     const openPaymentModal = () => {
     paymentError.value = ''
     dynamicQrisImage.value = ''
     showPaymentModal.value = true
-    };
+    }
 
-    const closePaymentModal = () => { showPaymentModal.value = false };
+    const closePaymentModal = () => {
+    showPaymentModal.value = false
+    }
 
+    // --- Payment & Lifecycle Handlers ---
     const handlePaymentSubmit = async ({ method, money }: { method: 'cash' | 'qris'; money: number }) => {
     isProcessing.value = true
     paymentError.value = ''
@@ -148,7 +209,7 @@
         }
 
         const resTrx = await api.post('/transactions', payload, { headers: { Authorization: `Bearer ${token}` } })
-        const trxData = resTrx.data.data || resTrx.data
+        const trxData = (resTrx.data.data || resTrx.data) as Transaction
 
         if (method === 'qris') {
         if (trxData.qrisImage) dynamicQrisImage.value = trxData.qrisImage
@@ -156,31 +217,32 @@
         currentTransaction.value = trxData
         } else {
         const resDetail = await api.get(`/transactions/${trxData.id}`, { headers: { Authorization: `Bearer ${token}` } })
-        currentTransaction.value = resDetail.data.data || resDetail.data
+        currentTransaction.value = (resDetail.data.data || resDetail.data) as Transaction
         customerMoneyPaid.value = money
         showPaymentModal.value = false
         showReceiptModal.value = true
         }
-    } catch (error: any) {
-        paymentError.value = error.response?.data?.message || error.message || 'Gagal memproses transaksi'
+    } catch (error) {
+        const axiosError = error as AxiosError<{ message?: string }>
+        paymentError.value = axiosError.response?.data?.message || axiosError.message || 'Gagal memproses transaksi'
     } finally {
         isProcessing.value = false
     }
-    };
+    }
 
     const showReceiptStep = async () => {
     if (!currentTransaction.value) return
     const token = localStorage.getItem('token')
     try {
         const resDetail = await api.get(`/transactions/${currentTransaction.value.id}`, { headers: { Authorization: `Bearer ${token}` } })
-        currentTransaction.value = resDetail.data.data || resDetail.data
+        currentTransaction.value = (resDetail.data.data || resDetail.data) as Transaction
         showPaymentModal.value = false
         showReceiptModal.value = true
         dynamicQrisImage.value = ''
     } catch (error) {
         console.error("Gagal memuat detail struk", error)
     }
-    };
+    }
 
     const closeReceiptAndReset = () => {
     showReceiptModal.value = false
@@ -188,7 +250,7 @@
     currentTransaction.value = null
     customerMoneyPaid.value = 0
     mobileView.value = 'catalog'
-    };
+    }
 
     onMounted(async () => {
     const token = localStorage.getItem('token')
@@ -206,7 +268,7 @@
     } finally {
         isLoadingProducts.value = false
     }
-    });
+    })
     </script>
 
     <style scoped>

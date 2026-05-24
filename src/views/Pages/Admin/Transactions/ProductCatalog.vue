@@ -80,19 +80,33 @@
     <script setup lang="ts">
     import { ref, computed } from 'vue'
 
+    interface Category {
+      id: number
+      name: string
+    }
+
+    interface Product {
+      id: number
+      name: string
+      price: number
+      image: string
+      categoryId?: number
+      category?: Category
+    }
+
     const props = defineProps<{
-    products: any[]
-    categories: any[]
-    isLoading: boolean
-    getImageUrl: (file: string) => string
-    formatRupiah: (num: number) => string
+      products: Product[]
+      categories: Category[]
+      isLoading: boolean
+      getImageUrl: (file: string) => string
+      formatRupiah: (num: number) => string
     }>();
 
-    const emit = defineEmits(['add-to-cart']);
+    defineEmits(['add-to-cart']);
 
     const selectedCategory = ref<number | ''>('');
     const localPage = ref(1);
-    const itemsPerPage = 8; // Diubah sedikit menjadi 8 agar pas grid di layar pendek tanpa meluber
+    const itemsPerPage = 8;
 
     const filteredProducts = computed(() => {
     if (selectedCategory.value === '') return props.products
