@@ -67,26 +67,26 @@
     <script setup lang="ts">
     import { reactive, ref, onMounted } from 'vue'
 
-    interface Category {
-      id: number;
-      name: string;
-    }
+        interface Category {
+        id: number;
+        name: string;
+        }
 
-    interface Product {
-      id: number | null;
-      name: string;
-      price: string | number;
-      categoryId: string | number;
-      image?: string;
-      category?: Category;
-    }
+        interface Product {
+        id: number | null;
+        name: string;
+        price: string | number;
+        categoryId: string | number;
+        image?: string;
+        category?: Category;
+        }
 
-    const props = defineProps<{
-      initialData: Product | null;
-      categories: Category[];
-      isSaving: boolean;
-      getImageUrl: (filename: string) => string;
-    }>();
+        const props = defineProps<{
+        initialData: Product | null;
+        categories: Category[];
+        isSaving: boolean;
+        getImageUrl: (filename: string) => string;
+        }>();
 
     const emit = defineEmits(['submit', 'cancel']);
 

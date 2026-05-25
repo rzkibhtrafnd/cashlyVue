@@ -134,11 +134,13 @@ const THROTTLE_DELAY = 300
 
 router.beforeEach((to, from, next) => {
   const now = Date.now()
-  if (now - lastNavigationTime < THROTTLE_DELAY) {
+  if (from.path !== '/' && from.path !== to.path && (now - lastNavigationTime < THROTTLE_DELAY)) {
     console.warn('Navigasi diblokir sementara karena terlalu cepat (Throttle)')
     return next(false)
   }
-  lastNavigationTime = now
+  if (from.path !== to.path) {
+    lastNavigationTime = now
+  }
 
   document.title = `${to.meta.title} Cashly`
   

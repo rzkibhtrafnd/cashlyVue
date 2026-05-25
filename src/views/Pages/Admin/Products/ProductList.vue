@@ -37,7 +37,6 @@
                 <td :colspan="userRole === 'admin' ? 5 : 4" class="px-6 py-8 text-center text-gray-500">Belum ada data produk.</td>
             </tr>
 
-            <!-- UBAH: Loop menggunakan paginatedProducts, bukan products -->
             <tr v-for="product in paginatedProducts" :key="product.id" class="hover:bg-gray-50 dark:hover:bg-white/[0.02] transition">
                 <td class="px-6 py-4">
                 <div class="h-12 w-12 overflow-hidden rounded-lg border border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800 flex items-center justify-center">
@@ -100,12 +99,25 @@
     <script setup lang="ts">
     import { ref, computed, watch } from 'vue';
 
+    interface Category {
+        id: number;
+        name: string;
+    }
+    interface Product {
+        id: number;
+        name: string;
+        price: number;
+        image: string;
+        categoryId?: number;
+        category?: Category;
+    }
+
     const props = defineProps<{
-    products: any[];
-    isLoading: boolean;
-    userRole: string;
-    getImageUrl: (filename: string) => string;
-    formatRupiah: (num: number) => string;
+        products: Product[];
+        isLoading: boolean;
+        userRole: string;
+        getImageUrl: (filename: string) => string;
+        formatRupiah: (num: number) => string;
     }>();
 
     defineEmits(['create', 'edit', 'delete']);

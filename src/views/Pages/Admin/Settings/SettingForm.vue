@@ -145,12 +145,10 @@
 
     const emit = defineEmits(['submit', 'reset']);
 
-    // State form lokal penyimpan perubahan sementara
     const localForm = reactive({ ...props.initialData });
     const fileLogo = ref<File | null>(null);
     const fileQris = ref<File | null>(null);
 
-    // Mengamati sinkronisasi ulang data jika tombol reset ditekan induk
     watch(() => props.initialData, (newVal) => {
     Object.assign(localForm, newVal);
     fileLogo.value = null;

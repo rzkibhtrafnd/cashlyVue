@@ -3,12 +3,13 @@
     class="sticky top-0 flex w-full bg-white border-gray-200 z-99999 dark:border-gray-800 dark:bg-gray-900 lg:border-b"
   >
     <div class="flex flex-col items-center justify-between grow lg:flex-row lg:px-6">
+      
       <div
-        class="flex items-center justify-between w-full gap-2 px-3 py-3 border-b border-gray-200 dark:border-gray-800 sm:gap-4 lg:justify-normal lg:border-b-0 lg:px-0 lg:py-4"
+        class="relative flex items-center justify-between w-full px-3 py-3 border-b border-gray-200 dark:border-gray-800 lg:justify-normal lg:border-b-0 lg:px-0 lg:py-4"
       >
         <button
           @click="handleToggle"
-          class="flex items-center justify-center w-10 h-10 text-gray-500 border-gray-200 rounded-lg z-99999 dark:border-gray-800 dark:text-gray-400 lg:h-11 lg:w-11 lg:border"
+          class="relative z-10 flex shrink-0 items-center justify-center w-10 h-10 text-gray-500 border-gray-200 rounded-lg dark:border-gray-800 dark:text-gray-400 lg:h-11 lg:w-11 lg:border"
           :class="[
             isMobileOpen
               ? 'lg:bg-transparent dark:lg:bg-transparent bg-gray-100 dark:bg-gray-800'
@@ -47,10 +48,27 @@
             />
           </svg>
         </button>
-        <HeaderLogo />
+
+        <router-link 
+          to="/" 
+          class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-2 lg:hidden z-0"
+        >
+          <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white font-extrabold text-lg shadow-sm">
+            C
+          </div>
+          <div class="flex flex-col whitespace-nowrap overflow-hidden">
+            <span class="text-lg font-extrabold text-gray-900 dark:text-white leading-none">
+              Cashly
+            </span>
+            <span class="text-[10px] font-medium text-gray-500 dark:text-gray-400 mt-0.5 truncate max-w-[120px]">
+              {{ settings?.companyName || 'Point of Sale' }}
+            </span>
+          </div>
+        </router-link>
+
         <button
           @click="toggleApplicationMenu"
-          class="flex items-center justify-center w-10 h-10 text-gray-700 rounded-lg z-99999 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 lg:hidden"
+          class="relative z-10 flex shrink-0 items-center justify-center w-10 h-10 text-gray-700 rounded-lg hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 lg:hidden"
         >
           <svg
             width="24"
@@ -82,10 +100,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useSidebar } from '@/composables/useSidebar'
+import { useSettings } from '@/composables/useSettings'
 import ThemeToggler from '../common/ThemeToggler.vue'
-import HeaderLogo from './header/HeaderLogo.vue'
+
+const { settings, fetchSettings } = useSettings()
+
+onMounted(() => {
+  fetchSettings()
+})
 
 const { toggleSidebar, toggleMobileSidebar, isMobileOpen } = useSidebar()
 

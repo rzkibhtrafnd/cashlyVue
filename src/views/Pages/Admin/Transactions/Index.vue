@@ -82,7 +82,6 @@
 
     const backendBaseUrl = 'http://localhost:5000'
 
-    // --- Interfaces Berkualitas (Tanpa Any) ---
     interface Category {
     id: number
     name: string
@@ -124,7 +123,7 @@
     id: number
     paymentMethod: 'cash' | 'qris'
     total: number
-    totalPrice?: number // Sesuai kebutuhan prop PaymentModal Anda
+    totalPrice?: number
     createdAt?: string
     qrisImage?: string
     qrisError?: string
@@ -134,7 +133,6 @@
     }
     }
 
-    // --- State Definitions ---
     const products = ref<Product[]>([])
     const categories = ref<Category[]>([])
     const cart = ref<CartItem[]>([])
@@ -152,11 +150,9 @@
     const currentTransaction = ref<Transaction | null>(null)
     const customerMoneyPaid = ref(0)
 
-    // --- Computed Properties ---
     const totalPrice = computed(() => cart.value.reduce((sum, item) => sum + (item.price * item.qty), 0))
     const totalItems = computed(() => cart.value.reduce((sum, item) => sum + item.qty, 0))
 
-    // --- Helper Functions ---
     const formatRupiah = (num: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num)
     const formatNumber = (num: number) => new Intl.NumberFormat('id-ID').format(num)
     const getImageUrl = (filename: string) => `${backendBaseUrl}/uploads/${filename}`
@@ -165,7 +161,6 @@
     return new Date(dateStr).toLocaleString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
     }
 
-    // --- Cart Actions ---
     const addToCart = (product: Product) => {
     const existing = cart.value.find(i => i.id === product.id)
     if (existing) {
@@ -196,7 +191,6 @@
     showPaymentModal.value = false
     }
 
-    // --- Payment & Lifecycle Handlers ---
     const handlePaymentSubmit = async ({ method, money }: { method: 'cash' | 'qris'; money: number }) => {
     isProcessing.value = true
     paymentError.value = ''

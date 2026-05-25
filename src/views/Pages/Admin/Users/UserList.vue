@@ -55,9 +55,15 @@
     </template>
 
     <script setup lang="ts">
+    interface User {
+        id: number;
+        name: string;
+        email: string;
+        role: 'admin' | 'kasir';
+    }
     defineProps<{
-    users: any[];
-    isLoading: boolean;
+        users: User[];
+        isLoading: boolean;
     }>();
 
     defineEmits(['create', 'view', 'edit', 'delete']);

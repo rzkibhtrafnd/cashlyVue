@@ -3,7 +3,6 @@
         <div class="bg-gray-50 dark:bg-gray-950">
         <div class="mx-auto max-w-screen-2xl space-y-6 p-4 md:p-6 2xl:p-10">
             
-            <!-- Page Header -->
             <div class="rounded-2xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
             <div class="flex flex-col gap-4 px-6 py-6 sm:flex-row sm:items-center sm:justify-between">
                 <div>
@@ -13,7 +12,6 @@
             </div>
             </div>
 
-            <!-- Alert Notification -->
             <div v-if="alert.msg"
             class="rounded-2xl border px-4 py-4 text-sm font-medium transition-all"
             :class="alert.type === 'success' ? 'border-green-200 bg-green-50 text-green-700 dark:border-green-500/20 dark:bg-green-500/10 dark:text-green-400' : 'border-red-200 bg-red-50 text-red-700 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-400'"
@@ -21,7 +19,6 @@
             {{ alert.msg }}
             </div>
 
-            <!-- Loading State -->
             <div v-if="loadingFetch" class="flex items-center justify-center rounded-2xl border border-gray-200 bg-white px-6 py-20 dark:border-white/[0.05] dark:bg-white/[0.03]">
             <div class="flex flex-col items-center gap-4">
                 <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-50 dark:bg-brand-500/10">
@@ -34,7 +31,6 @@
             </div>
             </div>
 
-            <!-- Content Area -->
             <div v-else class="rounded-2xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
             <div class="border-b border-gray-100 px-6 py-5 dark:border-white/[0.05]">
                 <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90">Informasi & Konfigurasi Toko</h3>
@@ -98,7 +94,6 @@
     wifiPassword: ''
     })
 
-    // Utilities
     const getAuthHeader = () => ({ headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
     const getImageUrl = (filename: string) => `${backendBaseUrl}/uploads/${filename}`
 
@@ -109,7 +104,6 @@
     alertTimer = setTimeout(() => { alert.msg = '' }, 4000)
     }
 
-    // API Connection
     const fetchSettings = async () => {
     loadingFetch.value = true
     try {

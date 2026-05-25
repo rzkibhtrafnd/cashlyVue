@@ -1,7 +1,6 @@
     <template>
     <div class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4">
         <div class="w-full max-w-md rounded-2xl bg-white shadow-xl dark:bg-gray-900 overflow-hidden flex flex-col max-h-[90vh]">
-        <!-- Header -->
         <div class="flex items-center justify-between border-b border-gray-200 p-5 dark:border-gray-800 shrink-0">
             <h3 class="text-lg font-bold text-gray-800 dark:text-white">Pembayaran</h3>
             <button @click="$emit('close')" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
@@ -9,7 +8,6 @@
             </button>
         </div>
 
-        <!-- Body -->
         <div class="p-5 overflow-y-auto">
             <div class="text-center mb-6 rounded-2xl bg-brand-50/70 border border-brand-100 p-5 dark:bg-brand-500/10 dark:border-brand-500/20">
             <p class="text-xs font-semibold text-brand-600 dark:text-brand-400 uppercase tracking-wider mb-1">Total Tagihan</p>
@@ -21,7 +19,6 @@
             <button @click="method = 'qris'" class="flex-1 py-3 rounded-xl border-2 font-bold transition-all text-sm" :class="method === 'qris' ? 'border-brand-500 bg-brand-50 text-brand-600 dark:bg-brand-500/10' : 'border-gray-200 text-gray-500 dark:border-gray-700'">QRIS</button>
             </div>
 
-            <!-- Tunai / Cash View -->
             <div v-if="method === 'cash'" class="space-y-4">
             <div>
                 <label class="mb-2 block text-sm font-medium text-gray-800 dark:text-white">Uang Pelanggan (Rp)</label>
@@ -33,7 +30,6 @@
             </div>
             </div>
 
-            <!-- QRIS View -->
             <div v-if="method === 'qris'" class="flex flex-col items-center justify-center">
             <div v-if="isProcessing && !dynamicQrisImage" class="flex flex-col items-center py-10 gap-3">
                 <svg class="h-9 w-9 animate-spin text-brand-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
@@ -61,7 +57,6 @@
             <div v-if="error" class="mt-4 text-center text-sm font-medium text-red-500">{{ error }}</div>
         </div>
 
-        <!-- Footer Aksi -->
         <div class="border-t border-gray-200 p-5 dark:border-gray-800 shrink-0">
             <button 
             v-if="method === 'qris' && dynamicQrisImage" 
@@ -89,20 +84,20 @@
     <script setup lang="ts">
     import { ref, computed, watch } from 'vue'
 
-    interface Settings {
-      imgQris?: string
-      companyName?: string
-      [key: string]: unknown
-    }
+        interface Settings {
+        imgQris?: string
+        companyName?: string
+        [key: string]: unknown
+        }
 
-    const props = defineProps<{
-      totalPrice: number
-      dynamicQrisImage: string
-      settings: Settings | null
-      isProcessing: boolean
-      error: string
-      formatRupiah: (num: number) => string
-    }>();
+        const props = defineProps<{
+        totalPrice: number
+        dynamicQrisImage: string
+        settings: Settings | null
+        isProcessing: boolean
+        error: string
+        formatRupiah: (num: number) => string
+        }>();
 
     const emit = defineEmits(['close', 'submit-payment', 'done-qris']);
 

@@ -80,27 +80,27 @@
     <script setup lang="ts">
     import { ref, computed } from 'vue'
 
-    interface Category {
-      id: number
-      name: string
-    }
+        interface Category {
+        id: number
+        name: string
+        }
 
-    interface Product {
-      id: number
-      name: string
-      price: number
-      image: string
-      categoryId?: number
-      category?: Category
-    }
+        interface Product {
+        id: number
+        name: string
+        price: number
+        image: string
+        categoryId?: number
+        category?: Category
+        }
 
-    const props = defineProps<{
-      products: Product[]
-      categories: Category[]
-      isLoading: boolean
-      getImageUrl: (file: string) => string
-      formatRupiah: (num: number) => string
-    }>();
+        const props = defineProps<{
+        products: Product[]
+        categories: Category[]
+        isLoading: boolean
+        getImageUrl: (file: string) => string
+        formatRupiah: (num: number) => string
+        }>();
 
     defineEmits(['add-to-cart']);
 

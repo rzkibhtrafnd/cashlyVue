@@ -48,28 +48,28 @@
     <script setup lang="ts">
     import { reactive, onMounted } from 'vue'
 
-    interface User {
-      id: number | null;
-      name: string;
-      email: string;
-      password: string;
-      role: 'admin' | 'kasir';
-    }
+        interface User {
+        id: number | null;
+        name: string;
+        email: string;
+        password: string;
+        role: 'admin' | 'kasir';
+        }
 
-    const props = defineProps<{
-      initialData: User | null;
-      isSaving: boolean;
-    }>();
+        const props = defineProps<{
+        initialData: User | null;
+        isSaving: boolean;
+        }>();
 
-    defineEmits(['submit', 'cancel']);
+        defineEmits(['submit', 'cancel']);
 
-    const localForm = reactive<User>({
-      id: null,
-      name: '',
-      email: '',
-      password: '',
-      role: 'kasir'
-    });
+        const localForm = reactive<User>({
+        id: null,
+        name: '',
+        email: '',
+        password: '',
+        role: 'kasir'
+        });
 
     onMounted(() => {
     if (props.initialData) {

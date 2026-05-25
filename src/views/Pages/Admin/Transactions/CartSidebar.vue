@@ -77,7 +77,6 @@
     (e: 'checkout'): void
     }>()
 
-    // --- Computed Properties ---
     const totalItems = computed(() => props.cart.reduce((sum, item) => sum + item.qty, 0))
     const totalPrice = computed(() => props.cart.reduce((sum, item) => sum + (item.price * item.qty), 0))
     </script>

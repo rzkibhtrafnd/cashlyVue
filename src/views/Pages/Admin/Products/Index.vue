@@ -90,7 +90,6 @@
     const alert = reactive({ msg: '', type: 'success' as 'success' | 'error' })
     let alertTimer: ReturnType<typeof setTimeout> | null = null
 
-    // Helper Utilities
     const getAuthHeader = () => ({ headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
     const getImageUrl = (filename: string) => `${backendBaseUrl}/uploads/${filename}`
     const formatRupiah = (num: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num)
@@ -102,7 +101,6 @@
     alertTimer = setTimeout(() => { alert.msg = '' }, 4000)
     }
 
-    // Fetching Data dari API
     const fetchProducts = async () => {
     isLoading.value = true
     try {

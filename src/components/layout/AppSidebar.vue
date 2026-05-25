@@ -15,39 +15,29 @@
   >
     <div
       :class="[
-        'py-8 flex',
+        'py-6 flex items-center transition-all duration-300',
         !isExpanded && !isHovered ? 'lg:justify-center' : 'justify-start',
       ]"
     >
-      <router-link to="/">
-        <img
+      <router-link to="/" class="flex items-center gap-3 overflow-hidden w-full">
+        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white font-extrabold text-xl shadow-sm">
+          C
+        </div>
+        <div
           v-if="isExpanded || isHovered || isMobileOpen"
-          class="dark:hidden"
-          :src="settings?.logo || '/images/logo/logo.svg'"
-          alt="Logo"
-          width="150"
-          height="40"
-        />
-        <img
-          v-if="isExpanded || isHovered || isMobileOpen"
-          class="hidden dark:block"
-          :src="settings?.logoDark || '/images/logo/logo-dark.svg'"
-          alt="Logo"
-          width="150"
-          height="40"
-        />
-        <img
-          v-else
-          :src="settings?.logoIcon || '/images/logo/logo-icon.svg'"
-          alt="Logo"
-          width="32"
-          height="32"
-        />
+          class="flex flex-col whitespace-nowrap overflow-hidden transition-opacity duration-300"
+        >
+          <span class="text-xl font-extrabold text-gray-900 dark:text-white tracking-tight leading-none">
+            Cashly
+          </span>
+          <span class="text-xs font-medium text-gray-500 dark:text-gray-400 mt-1 truncate max-w-[180px]">
+            {{ settings?.companyName || 'Point of Sale' }}
+          </span>
+        </div>
       </router-link>
     </div>
-    <div
-      class="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar"
-    >
+
+    <div class="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
       <nav class="mb-6">
         <div class="flex flex-col gap-4">
           <div v-for="(menuGroup, groupIndex) in menuGroups" :key="groupIndex">
@@ -102,7 +92,7 @@
                     :class="[
                       'ml-auto w-5 h-5 transition-transform duration-200',
                       {
-                        'rotate-180 text-brand-500': isSubmenuOpen(
+                        'rotate-180 text-blue-600': isSubmenuOpen(
                           groupIndex,
                           index
                         ),
@@ -337,7 +327,7 @@ const menuGroups = [
         path: "/transactions",
       },
       {
-        icon: IconHistory,
+        icon: IconHistory, 
         name: "Riwayat Transaksi",
         path: "/recent-transactions",
       }
